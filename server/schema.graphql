@@ -1,0 +1,48 @@
+ type Query {
+      #used this to specify what JobId to fetch details
+      job(id: ID!): Job
+
+      # This fetches all the jobs
+      jobs: [Job!]
+
+      #Fetches a company based on ID
+      company(id: ID!): Company
+    }
+
+type Mutation{
+  #createJob(title:String!,companyId:ID!,description:String):Job
+  #Replace above line with Input Type
+  createJob(input: CreateJobInput!):Job
+  deleteJob(id: ID!):Job
+  updateJob(input: UpdateJobInput!):Job
+  #deleteJob
+  #updateJob
+}
+
+ type Job{
+    id : ID!
+    title: String!
+    description: String
+    company:Company
+ }
+
+ type Company {
+   id: ID!
+   name: String!
+   description:String
+   jobs:[Job!]
+ }
+
+#Objects of 'input' type are used as input arguments
+#Instead of passing in multiple parameters to a function , just pass in this object
+#Since its used in createJob , we name it CreateJobInput
+input CreateJobInput{
+  title: String!
+  description:String
+}
+
+input UpdateJobInput{
+  id: ID!
+  title: String!
+  description:String
+}
