@@ -1,6 +1,6 @@
 import {ApolloClient,gql, InMemoryCache} from '@apollo/client' //Using apollo client to send each graph ql request
 //import request from 'graphql-request'
-import { getAccessToken } from '../../auth';
+//import { getAccessToken } from '../../auth';
 
 const GRAPHQL_URL = 'http://localhost:9000/graphql';
 export const client = new ApolloClient({
@@ -33,7 +33,7 @@ const JOB_DETAIL_FRAGMENT = gql`
     }
 `
 
-const JOB_QUERY = gql `
+export const JOB_QUERY = gql `
 # JobQuery is a user defined query name (optional) and $id is the variable passed in
 # 
    query JobQuery($id : ID!){
@@ -58,6 +58,64 @@ export const JOBS_QUERY = gql `
         }
         `;
 
+export const COMPANY_QUERY = gql `
+    query CompanyQuery($id: ID!){
+        company(id:$id) {
+            id
+            name
+            description
+            jobs {
+                id
+                title
+            }
+        }
+    }
+    `;
+
+export const CREATE_JOB_MUTATION = gql `
+        mutation CreateJob($input: CreateJobInput!){
+            #We add an alias 'job' at the beginning so that the alias is returned as the object name from the server
+            job: createJob(input: $input) {
+                ...JobDetail
+                }
+        }
+        ${JOB_DETAIL_FRAGMENT}
+    `;
+// export async function createJob(input){
+//     const mutation = gql `
+//         mutation CreateJob($input: CreateJobInput!){
+//             #We add an alias 'job' at the beginning so that the alias is returned as the object name from the server
+//             job: createJob(input: $input) {
+//                 ...JobDetail
+//                 }
+//         }
+//         ${JOB_DETAIL_FRAGMENT}
+//     `;
+//     //variables are used to pass parameters to the request
+//     const variables = {input};
+//     //use the below to pass headers
+//     //const headers = {'Authorization':'Bearer ' + getAccessToken()}
+//     const context ={
+//         headers : {'Authorization':'Bearer ' + getAccessToken()}
+//     }
+//     const {data :{job}} = await client.mutate({
+//         mutation,
+//         variables,
+//         context,
+//         // updating the data in the cache
+//         update: (cache,{data:{job}}) =>{
+//             cache.writeQuery({
+//                 query: JOB_QUERY,
+//                 variables: {id: job.id},
+//                 data: {job},
+//             });
+//             console.log('[createJob] job', job);
+//         }
+//     });
+//     //const {job} = await request(GRAPHQL_URL,query,variables,headers)
+//     //console.log('Company - ',company);
+//     return job;
+// }
 // export async function getJobs(){
 //     const query = gql `
 //         query JobsQuery{
@@ -87,74 +145,40 @@ export const JOBS_QUERY = gql `
 //     return jobs;
 // }
 
-export async function getJob(id){
+// export async function getJob(id){
 
-    const variables = {id};
-    const {data:{job}} = await client.query({
-        query:JOB_QUERY,
-        variables
-    });
+//     const variables = {id};
+//     const {data:{job}} = await client.query({
+//         query:JOB_QUERY,
+//         variables
+//     });
 
-    //const {job} = await request(GRAPHQL_URL,query,variables)
-    return job;
-}
+//     //const {job} = await request(GRAPHQL_URL,query,variables)
+//     return job;
+// }
 
-export async function getCompany(id){
-    const query = gql `
-        query CompanyQuery($id: ID!){
-            company(id:$id) {
-                id
-                name
-                description
-                jobs {
-                    id
-                    title
-                }
-            }
-        }
-    `;
-    const variables = {id};
-    const {data:{company}} = await client.query({query,variables});
-    //const {company} = await request(GRAPHQL_URL,query,variables)
-    //console.log('Company - ',company);
-    return company;
-}
+// export async function getCompany(id){
+//     const query = gql `
+//         query CompanyQuery($id: ID!){
+//             company(id:$id) {
+//                 id
+//                 name
+//                 description
+//                 jobs {
+//                     id
+//                     title
+//                 }
+//             }
+//         }
+//     `;
+//     const variables = {id};
+//     const {data:{company}} = await client.query({query,variables});
+//     //const {company} = await request(GRAPHQL_URL,query,variables)
+//     //console.log('Company - ',company);
+//     return company;
+// }
 
-export async function createJob(input){
-    const mutation = gql `
-        mutation CreateJob($input: CreateJobInput!){
-            #We add an alias 'job' at the beginning so that the alias is returned as the object name from the server
-            job: createJob(input: $input) {
-                ...JobDetail
-                }
-        }
-        ${JOB_DETAIL_FRAGMENT}
-    `;
-    //variables are used to pass parameters to the request
-    const variables = {input};
-    //use the below to pass headers
-    //const headers = {'Authorization':'Bearer ' + getAccessToken()}
-    const context ={
-        headers : {'Authorization':'Bearer ' + getAccessToken()}
-    }
-    const {data :{job}} = await client.mutate({
-        mutation,
-        variables,
-        context,
-        // updating the data in the cache
-        update: (cache,{data:{job}}) =>{
-            cache.writeQuery({
-                query: JOB_QUERY,
-                variables: {id: job.id},
-                data: {job},
-            });
-            console.log('[createJob] job', job);
-        }
-    });
-    //const {job} = await request(GRAPHQL_URL,query,variables,headers)
-    //console.log('Company - ',company);
-    return job;
-}
+
 // export async function deleteJob(id){
 //     const query = gql `
 //         mutation deleteJob($id: ID!){

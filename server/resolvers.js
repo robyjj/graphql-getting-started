@@ -6,6 +6,10 @@ function rejectIf(condition){
     }  
 }
 
+// function delay(ms){
+//     return new Promise((resolve) => setTimeout(resolve,ms));
+// }
+
 export const resolvers = {
     Query: {
         //First parameter is Parent , in this case - root
@@ -26,9 +30,10 @@ export const resolvers = {
         //context argument - contains any additional peroperties to be available the resolver
         //use context to extract information from HTTP Req and make it available to the resolver
         // we can use it to authenticate the token
-        createJob:(_root,{input}, {user}) =>{
+        createJob: (_root,{input}, {user}) =>{
             console.log('createJob context:',user)            
             rejectIf(!user);
+            //await delay(2000);
             return Job.create({...input,companyId:user.companyId});
             
         },
