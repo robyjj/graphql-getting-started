@@ -1,36 +1,39 @@
-import { useMutation } from '@apollo/client';
+//import { useMutation } from '@apollo/client';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { createJob, CREATE_JOB_MUTATION, JOB_QUERY } from './graphql/queries';
 import { getAccessToken } from '../auth';
+import { useCreateJob } from './graphql/hooks';
 
 function JobForm() {
   const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [mutate,{loading}] = useMutation(CREATE_JOB_MUTATION);
+  const {createJob,loading,error} = useCreateJob();
+  //const [mutate,{loading}] = useMutation(CREATE_JOB_MUTATION);
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const {data:{job}} = await mutate(
-      {
-        variables:{
-          input : {title,description}
-        },
-        context:{ 
-          headers : {'Authorization':'Bearer ' + getAccessToken()},
-        },
-        // updating the data in the cache
-        update: (cache,{data:{job}}) =>{
-          cache.writeQuery({
-              query: JOB_QUERY,
-              variables: {id: job.id},
-              data: {job},
-          });
-          console.log('[createJob] job', job);
-      }
-      });
-    //const job = await createJob({title,description})
-    console.log('job created', job)
+    const job = await createJob(title,description);
+    // const {data:{job}} = await mutate(
+    //   {
+    //     variables:{
+    //       input : {title,description}
+    //     },
+    //     context:{ 
+    //       headers : {'Authorization':'Bearer ' + getAccessToken()},
+    //     },
+    //     // updating the data in the cache
+    //     update: (cache,{data:{job}}) =>{
+    //       cache.writeQuery({
+    //           query: JOB_QUERY,
+    //           variables: {id: job.id},
+    //           data: {job},
+    //       });
+    //       console.log('[createJob] job', job);
+    //   }
+    //   });
+    // //const job = await createJob({title,description})
+    // console.log('job created', job)
     //Route to the newly created job
     navigate(`/jobs/${job.id}`);
   };
